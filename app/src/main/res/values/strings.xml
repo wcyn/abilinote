@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">Abilinote</string>
+    <string name="hello">Hello World!</string>
+    <string name="kenya">Kenya</string>
+    <string name="activity1">activity 1</string>
+    <string name="activity2">Activity 2</string>
+    <string name="activity3">Activity 3</string>
+    <string name="activity4">Activity 4</string>
+    <string name="_8">8*</string>
+    <string name="_21">21*</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="record_notes">Record Notes</string>
+    <string name="pause_recording">Pause Recording</string>
+    <string name="my_notes">My Notes</string>
+    <string name="type_notes">Type Notes</string>
+    <string name="resume_recording">Resume Recording</string>
+    <string name="note_title">Note Title</string>
+    <string name="sample_text">So this is just a example note that was created as an example to display this text view</string>
 </resources>

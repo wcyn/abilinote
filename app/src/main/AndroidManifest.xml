@@ -2,21 +2,42 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.learnmine.abilinote">
 
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+             <intent-filter>
+             <action android:name="android.intent.action.MAIN" />
+
+
+             <category android:name="android.intent.category.LAUNCHER" />
+             </intent-filter>
         </activity>
-        <activity android:name=".SplashActivity"></activity>
-        <activity android:name=".SignActivity"></activity>
+        <activity android:name=".SplashActivity" />
+        <activity android:name=".SignActivity" />
+        <activity
+            android:name=".VoiceActivity"
+            android:label="@string/record_notes"
+            android:parentActivityName=".MainActivity">
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+        </activity>
+        <activity android:name=".NoteListActivity"
+            android:label="@string/my_notes"
+            android:parentActivityName=".MainActivity"
+            />
     </application>
 
 </manifest>
