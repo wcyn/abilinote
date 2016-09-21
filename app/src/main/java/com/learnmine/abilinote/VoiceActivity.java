@@ -14,6 +14,7 @@ import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.util.ArrayList;
@@ -42,21 +43,20 @@ public class VoiceActivity extends AppCompatActivity implements
         progressBar = (ProgressBar) findViewById(R.id.progressBarVoice);
         toggleButton = (ToggleButton) findViewById(R.id.toggleBtnVoice);
 
-        progressBar.setVisibility(View.INVISIBLE);
-
+        toggleButton.setChecked(true);
         setUpSpeech();
 
         //generate list
-        ArrayList<String> list = new ArrayList<String>();
-        list.add("item1");
-        list.add("item2");
+//        ArrayList<String> list = new ArrayList<String>();
+//        list.add("item1");
+//        list.add("item2");
 
         //instantiate custom adapter
-        CustomArrayAdapter adapter = new CustomArrayAdapter(list, this);
+//        CustomArrayAdapter adapter = new CustomArrayAdapter(list, this);
 
         //handle listview and assign adapter
-        ListView lView = (ListView)findViewById(R.id.lvVoiceReturn);
-        lView.setAdapter(adapter);
+//        ListView lView = (ListView)findViewById(R.id.lvVoiceReturn);
+//        lView.setAdapter(adapter);
 
         // start recording immediately activity is created
         listenToSpeech();
@@ -80,7 +80,7 @@ public class VoiceActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         // recreate Speech Recognizer
-
+        toggleButton.setChecked(false);
         setUpSpeech();
     }
 
@@ -173,8 +173,10 @@ public class VoiceActivity extends AppCompatActivity implements
     @Override
     public void onError(int errorCode) {
         String errorMessage = getErrorText(errorCode);
+        //display in short period of time
+        Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
         Log.d(MainActivity.LOG_TAG, "FAILED " + errorMessage);
-        returnedText.setText(errorMessage);
+//        returnedText.setText(errorMessage);
         toggleButton.setChecked(false);
     }
 

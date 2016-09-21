@@ -17,5 +17,9 @@
     <string name="type_notes">Type Notes</string>
     <string name="resume_recording">Resume Recording</string>
     <string name="note_title">Note Title</string>
-    <string name="sample_text">So this is just a example note that was created as an example to display this text view</string>
+    <string name="sample_text">Sample Note Text</string>
+    <string name="view_note">View Note</string>
+    <string name="edit_note_title">Edit Note Title</string>
+    <string name="new_text">New Text</string>
+    <string name="save_note">Save Note</string>
 </resources>

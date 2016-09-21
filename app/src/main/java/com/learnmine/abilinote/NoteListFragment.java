@@ -2,16 +2,14 @@ package com.learnmine.abilinote;
 
 
 import android.app.ListFragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -51,6 +49,24 @@ public class NoteListFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
+        launchNoDetailActivity(position);
+    }
+
+    private void launchNoDetailActivity(int position) {
+
+        // Grab the note info associated which the note we clicked on
+        Note note = (Note) getListAdapter().getItem(position);
+
+        //Create a new intent that launches our NoteDetailActivity
+        Intent intent = new Intent(getActivity(), NoteDetailActivity.class);
+
+        // Pass along the Information of the NOte we Clicked on to our NoteDetailActivity
+        intent.putExtra(NoteListActivity.NOTE_TITLE_EXTRA, note.getTitle());
+        intent.putExtra(NoteListActivity.NOTE_MESSAGE_EXTRA, note.getMessage());
+        intent.putExtra(NoteListActivity.NOTE_CATEGORY_EXTRA, note.getCategory());
+        intent.putExtra(NoteListActivity.NOTE_ID_EXTRA, note.getId());
+
+        startActivity(intent);
 
     }
 }

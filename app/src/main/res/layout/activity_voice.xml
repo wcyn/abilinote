@@ -55,8 +55,7 @@
         android:layout_centerHorizontal="true"
         android:id="@+id/toggleBtnVoice"
         android:textOff="@string/resume_recording"
-        android:textOn="@string/pause_recording"
-        android:checked="true"/>
+        android:textOn="@string/pause_recording"/>
 
     <ListView
         android:layout_width="match_parent"
