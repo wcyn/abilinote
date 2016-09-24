@@ -42,7 +42,8 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="15dp">
+        android:layout_marginTop="15dp"
+        android:id="@+id/scrollView">
         <TextView
             android:id="@+id/viewNoteMessage"
             android:textSize="18dp"
@@ -52,6 +53,18 @@
             android:text="@string/sample_text"/>
     </ScrollView>
 
-
+    <Button
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="5dp"
+        android:background="@drawable/circle_green"
+        android:onClick="editNoteHandler"
+        android:padding="5dp"
+        android:paddingTop="10dp"
+        android:drawableTop="@drawable/ic_pencil"
+        android:textColor="#fff"
+        android:id="@+id/btnEditNote"
+        android:layout_alignParentBottom="true"
+        android:layout_alignEnd="@+id/scrollView"/>
 
 </RelativeLayout>

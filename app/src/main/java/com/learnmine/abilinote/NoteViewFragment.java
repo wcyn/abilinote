@@ -1,9 +1,9 @@
 package com.learnmine.abilinote;
 
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +36,12 @@ public class NoteViewFragment extends Fragment {
 
         Note.Category noteCat = (Note.Category) intent.getSerializableExtra(
                 NoteListActivity.NOTE_CATEGORY_EXTRA);
-        icon.setImageResource(Note.categoryToDrawable(noteCat));
+        NoteListActivity.FragmentToLaunch fragmentToLaunch = (NoteListActivity.FragmentToLaunch)
+                intent.getSerializableExtra(NoteListActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA);
+
+        if (fragmentToLaunch != NoteListActivity.FragmentToLaunch.CREATE) {
+            icon.setImageResource(Note.categoryToDrawable(noteCat));
+        }
         // Return the modified fragment layout
         return fragmentLayout;
     }

@@ -22,4 +22,6 @@
     <string name="edit_note_title">Edit Note Title</string>
     <string name="new_text">New Text</string>
     <string name="save_note">Save Note</string>
+    <string name="edit_note">Edit Note</string>
+    <string name="nothing_here_yet">Nothing here yet</string>
 </resources>

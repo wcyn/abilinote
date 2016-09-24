@@ -1,12 +1,13 @@
 package com.learnmine.abilinote;
 
 
+import android.app.Fragment;
 import android.app.ListFragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -27,16 +28,22 @@ public class NoteListFragment extends ListFragment {
 //        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
 //                android.R.layout.simple_list_item_1, values);
 //        setListAdapter(adapter);
-        notes = new ArrayList<Note>();
-        notes.add(new Note("New Note Title", "Body of our Note", Note.Category.FINANCE));
-        notes.add(new Note("Personal Note", "Remeber to remember stuff, okay?", Note.Category.PERSONAL));
-        notes.add(new Note("Another Quote Note", "Yes, that rhymes, just like extraordinary quotes should", Note.Category.QUOTE));
-        notes.add(new Note("Finance Note", "The Body of a note on Finance", Note.Category.FINANCE));
-        notes.add(new Note("Technical Note", "An example of something pretty technical", Note.Category.TECHNICAL));
-        notes.add(new Note("My Favorite Quote", "My Favorite Quote has to be the Quote by Abraham Lincoln", Note.Category.QUOTE));notes.add(new Note("Another Quote Note", "Yes, that rhymes, just like extraordinary quotes should", Note.Category.QUOTE));
-        notes.add(new Note("Finance Note", "The Body of a note on Finance", Note.Category.FINANCE));
-        notes.add(new Note("Technical Note", "An example of something pretty technical", Note.Category.TECHNICAL));
-        notes.add(new Note("My Favorite Quote", "My Favorite Quote has to be the Quote by Abraham Lincoln", Note.Category.QUOTE));
+        AbilinoteDbAdapter abilinoteDbAdapter = new AbilinoteDbAdapter(
+                getActivity().getBaseContext());
+        abilinoteDbAdapter.open();
+        notes = abilinoteDbAdapter.getAllNotes();
+        Log.d(MainActivity.LOG_TAG, "Notes here: " + notes);
+        abilinoteDbAdapter.close();
+//        notes = new ArrayList<Note>();
+//        notes.add(new Note("New Note Title", "Body of our Note", Note.Category.FINANCE));
+//        notes.add(new Note("Personal Note", "Remember to remember stuff, okay?", Note.Category.PERSONAL));
+//        notes.add(new Note("Another Quote Note", "Yes, that rhymes, just like extraordinary quotes should", Note.Category.QUOTE));
+//        notes.add(new Note("Finance Note", "The Body of a note on Finance", Note.Category.FINANCE));
+//        notes.add(new Note("Technical Note", "An example of something pretty technical", Note.Category.TECHNICAL));
+//        notes.add(new Note("My Favorite Quote", "My Favorite Quote has to be the Quote by Abraham Lincoln", Note.Category.QUOTE));notes.add(new Note("Another Quote Note", "Yes, that rhymes, just like extraordinary quotes should", Note.Category.QUOTE));
+//        notes.add(new Note("Finance Note", "The Body of a note on Finance", Note.Category.FINANCE));
+//        notes.add(new Note("Technical Note", "An example of something pretty technical", Note.Category.TECHNICAL));
+//        notes.add(new Note("My Favorite Quote", "My Favorite Quote has to be the Quote by Abraham Lincoln", Note.Category.QUOTE));
 
         noteAdapter = new NoteAdapter(getActivity(), notes);
         setListAdapter(noteAdapter);
@@ -49,10 +56,10 @@ public class NoteListFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-        launchNoDetailActivity(position);
+        launchNoDetailActivity(NoteListActivity.FragmentToLaunch.VIEW,position);
     }
 
-    private void launchNoDetailActivity(int position) {
+    private void launchNoDetailActivity(NoteListActivity.FragmentToLaunch ftl, int position) {
 
         // Grab the note info associated which the note we clicked on
         Note note = (Note) getListAdapter().getItem(position);
@@ -66,6 +73,16 @@ public class NoteListFragment extends ListFragment {
         intent.putExtra(NoteListActivity.NOTE_CATEGORY_EXTRA, note.getCategory());
         intent.putExtra(NoteListActivity.NOTE_ID_EXTRA, note.getId());
 
+        switch (ftl) {
+            case VIEW:
+                intent.putExtra(NoteListActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA,
+                        NoteListActivity.FragmentToLaunch.VIEW);
+                break;
+            case EDIT:
+                intent.putExtra(NoteListActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA,
+                        NoteListActivity.FragmentToLaunch.EDIT);
+                break;
+        }
         startActivity(intent);
 
     }

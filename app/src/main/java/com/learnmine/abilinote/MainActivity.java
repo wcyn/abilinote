@@ -1,14 +1,14 @@
 package com.learnmine.abilinote;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
     public static final String LOG_TAG = "MainActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,5 +67,13 @@ public class MainActivity extends AppCompatActivity {
     public void goToNoteListActivity(View view) {
         Intent k = new Intent(MainActivity.this, NoteListActivity.class);
         startActivity(k);
+    }
+
+    public void goToNoteEditFragment(View view) {
+        Intent intent = new Intent(this, NoteDetailActivity.class);
+        intent.putExtra(NoteListActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA,
+                NoteListActivity.FragmentToLaunch.CREATE);
+        startActivity(intent);
+
     }
 }

@@ -8,7 +8,7 @@ public class Note {
     private long noteId, dateCreatedMilli;
     private Category category;
 
-    public enum Category {PERSONAL, TECHNICAL, QUOTE, FINANCE};
+    public enum Category {PERSONAL, TECHNICAL, QUOTE, FINANCE}
 
     public Note (String title, String message, Category category) {
         this.title = title;
