@@ -6,10 +6,10 @@ package com.learnmine.abilinote;
 public class SentenceBlock {
     private String  sentence;
     private long sentenceId, noteId;
-    private  int relevant;
+    private int relevant;
     private Category category;
 
-    public enum Category {NONE, IMPORTANT, RESEARCH, ASSIGNMENT, IDEA}
+    public enum Category {NOTHING, IMPORTANT, RESEARCH, ASSIGNMENT, IDEA}
 
     public SentenceBlock (String sentence, Category category, long noteId, int relevant) {
         this.sentence = sentence;
@@ -50,7 +50,7 @@ public class SentenceBlock {
         switch (category) {
             case IMPORTANT:
                 return R.mipmap.ic_p;
-            case NONE:
+            case NOTHING:
                 return R.mipmap.ic_q;
             case ASSIGNMENT:
                 return R.mipmap.ic_f;

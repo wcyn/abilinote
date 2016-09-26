@@ -49,12 +49,12 @@ public class AbilinoteDbAdapter {
     public final static String CREATE_TABLE_SENTENCE_BLOCK = "create table " + SENTENCE_BLOCK_TABLE
             + " ( "
             + SB_COLUMN_ID + " integer primary key autoincrement, "
-            + SB_NOTE_ID + " long, "
-            + "FOREIGN KEY (" + SB_NOTE_ID + ") REFERENCES " + NOTE_TABLE + "(" + NOTE_COLUMN_ID
-            + "), "
-            + SB_COLUMN_RELEVANT + " integer default 0, "
+            + SB_COLUMN_RELEVANT + " integer, "
             + SB_COLUMN_SENTENCE + " text not null, "
-            + SB_COLUMN_CATEGORY + " integer not null, "  + ");";
+            + SB_COLUMN_CATEGORY + " integer not null, "
+            + SB_NOTE_ID + " long, "
+            + "FOREIGN KEY(" + SB_NOTE_ID + ") REFERENCES " + NOTE_TABLE + "(" + NOTE_COLUMN_ID
+            + "));";
 
     private SQLiteDatabase sqlDB;
     private Context context;
@@ -75,6 +75,7 @@ public class AbilinoteDbAdapter {
     }
 
     public Note createNote(String title, String message, Note.Category category) {
+        Log.d(MainActivity.LOG_TAG, "Adapter creating Note");
         ContentValues values = new ContentValues();
         values.put(NOTE_COLUMN_TITLE, title);
         values.put(NOTE_COLUMN_MESSAGE, message);
@@ -88,6 +89,7 @@ public class AbilinoteDbAdapter {
         cursor.moveToFirst();
         Note newNote = cursorToNote(cursor);
         cursor.close();
+        Log.d(MainActivity.LOG_TAG, "Adapter created Note");
         return newNote;
     }
 
@@ -124,15 +126,18 @@ public class AbilinoteDbAdapter {
 
     public SentenceBlock createSentenceBlock(String sentence, SentenceBlock.Category category,
                                              long noteId, boolean relevant) {
+        Log.d(MainActivity.LOG_TAG, "Adapter creating Sentence Block");
+        Log.d(MainActivity.LOG_TAG, "Category Name: " + category.name());
         ContentValues values = new ContentValues();
         values.put(SB_COLUMN_SENTENCE, sentence);
         values.put(SB_COLUMN_CATEGORY, category.name());
         values.put(SB_NOTE_ID, noteId);
+        Log.d(MainActivity.LOG_TAG, "Adapter put values");
 
         // Convert relevance to integer for data entry into SQL
-        int rel = (relevant == true)? 1 : 0;
+        int rel = relevant ? 1 : 0;
         values.put(SB_COLUMN_RELEVANT, rel);
-
+        Log.d(MainActivity.LOG_TAG, "Adapter finished values");
         long insertId = sqlDB.insert(SENTENCE_BLOCK_TABLE, null, values);
 
         Cursor cursor = sqlDB.query(SENTENCE_BLOCK_TABLE, allSbColumns,
@@ -141,6 +146,7 @@ public class AbilinoteDbAdapter {
         cursor.moveToFirst();
         SentenceBlock newSentenceBlock = cursorToSentenceBlock(cursor);
         cursor.close();
+        Log.d(MainActivity.LOG_TAG, "Adapter created Sentence Block");
         return newSentenceBlock;
     }
 
@@ -183,6 +189,7 @@ public class AbilinoteDbAdapter {
         public void onCreate(SQLiteDatabase db) {
             // create NOte Table
             db.execSQL(CREATE_TABLE_NOTE);
+            db.execSQL(CREATE_TABLE_SENTENCE_BLOCK);
         }
 
         @Override
@@ -191,6 +198,7 @@ public class AbilinoteDbAdapter {
                     "Upgrading Database from version " + oldVersion + " to "
                         + newVersion + ", which will destroy all old data");
             db.execSQL("DROP TABLE IF EXISTS " + NOTE_TABLE);
+            db.execSQL("DROP TABLE IF EXISTS " + SENTENCE_BLOCK_TABLE);
             onCreate(db);
         }
     }

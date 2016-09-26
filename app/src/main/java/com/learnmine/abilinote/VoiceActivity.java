@@ -14,7 +14,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -27,6 +26,7 @@ public class VoiceActivity extends Activity implements
     public static final String LOG_TAG = "VoiceActivity";
 
     Note.Category noteCat;
+    SentenceBlock.Category sentenceBlockCat;
     Note newNote;
 
     private String sentences;
@@ -56,6 +56,7 @@ public class VoiceActivity extends Activity implements
         title = (EditText) findViewById(R.id.voiceEditNoteTitle);
         toggleButton.setChecked(true);
         noteCat = Note.Category.PERSONAL;
+        sentenceBlockCat = SentenceBlock.Category.NOTHING;
 
         // set up db adapter
         dbAdapter = new AbilinoteDbAdapter(VoiceActivity.this);
@@ -97,10 +98,10 @@ public class VoiceActivity extends Activity implements
 
     }
 
-    public void saveSentenceBlock(String sentence, SentenceBlock.Category category) {
+    public void saveSentenceBlock(String sentence) {
         Log.d(LOG_TAG, "Creating Note");
         // add sentence to the database
-        dbAdapter.createSentenceBlock(sentence, category, newNote.getId(), true);
+        dbAdapter.createSentenceBlock(sentence, sentenceBlockCat, newNote.getId(), true);
 
 
         ArrayList<SentenceBlock> sentenceBlocks = dbAdapter.getAllSentenceBlocks();
@@ -255,7 +256,7 @@ public class VoiceActivity extends Activity implements
 //        for (String result : matches)
 //            text += result + "\n";
         text = matches.get(0);
-        saveSentenceBlock(text, SentenceBlock.Category.NONE);
+        saveSentenceBlock(text);
         listenToSpeech();
     }
 
