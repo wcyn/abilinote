@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "174711207764",
+    "firebase_url": "https://abilinote.firebaseio.com",
+    "project_id": "abilinote",
+    "storage_bucket": "abilinote.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:174711207764:android:b14162026b22f97a",
+        "android_client_info": {
+          "package_name": "com.learnmine.abilinote"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "174711207764-q85o5fcg9dbf1hm9f23hlp24ovhgu297.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.learnmine.abilinote",
+            "certificate_hash": "F6624A7E6453201D457CB1EDAD90E293F72463DE"
+          }
+        },
+        {
+          "client_id": "174711207764-0vihciv6fd8k0jn6h559d2tmq5vp1m6n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDM6yJ46Oq8WupNhaEjtprQiEjjpms6vVM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "174711207764-0vihciv6fd8k0jn6h559d2tmq5vp1m6n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

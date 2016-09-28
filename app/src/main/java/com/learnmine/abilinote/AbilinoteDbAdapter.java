@@ -32,12 +32,14 @@ public class AbilinoteDbAdapter {
     public static final String SB_NOTE_ID = "noteId";
     public static final String SB_COLUMN_RELEVANT = "relevant";
     public static final String SB_COLUMN_SENTENCE = "sentence";
-    public static final String SB_COLUMN_CATEGORY = "category";
+//    public static final String SB_COLUMN_CATEGORY = "category";
 
     private String[] allNoteColumns = {NOTE_COLUMN_ID, NOTE_COLUMN_TITLE, NOTE_COLUMN_MESSAGE,
             NOTE_COLUMN_CATEGORY, NOTE_COLUMN_DATE};
     private String[] allSbColumns = {SB_COLUMN_ID, SB_NOTE_ID, SB_COLUMN_RELEVANT,
-            SB_COLUMN_SENTENCE, SB_COLUMN_CATEGORY};
+            SB_COLUMN_SENTENCE
+//            , SB_COLUMN_CATEGORY
+    };
 
     public final static String CREATE_TABLE_NOTE = "create table " + NOTE_TABLE + " ( "
             + NOTE_COLUMN_ID + " integer primary key autoincrement, "
@@ -46,12 +48,22 @@ public class AbilinoteDbAdapter {
             + NOTE_COLUMN_CATEGORY + " integer not null, "
             + NOTE_COLUMN_DATE + ");";
 
+//    new Note(cursor.getString(1), cursor.getString(2),
+//    Note.Category.valueOf(cursor.getString(3)), cursor.getLong(0), cursor.getLong(4));
+
+//    public Note (String title, String message, Category category, long noteId,
+//                 long dateCreatedMilli) {
+
+//    (String sentence, long noteId, int relevant
+//    ,long sentenceId
+//    (cursor.getString(2), cursor.getLong(3),
+//            cursor.getInt(1), cursor.getLong(0))
     public final static String CREATE_TABLE_SENTENCE_BLOCK = "create table " + SENTENCE_BLOCK_TABLE
             + " ( "
             + SB_COLUMN_ID + " integer primary key autoincrement, "
             + SB_COLUMN_RELEVANT + " integer, "
             + SB_COLUMN_SENTENCE + " text not null, "
-            + SB_COLUMN_CATEGORY + " integer not null, "
+//            + SB_COLUMN_CATEGORY + " integer not null, "
             + SB_NOTE_ID + " long, "
             + "FOREIGN KEY(" + SB_NOTE_ID + ") REFERENCES " + NOTE_TABLE + "(" + NOTE_COLUMN_ID
             + "));";
@@ -124,13 +136,12 @@ public class AbilinoteDbAdapter {
         return newNote;
     }
 
-    public SentenceBlock createSentenceBlock(String sentence, SentenceBlock.Category category,
-                                             long noteId, boolean relevant) {
+    public SentenceBlock createSentenceBlock(String sentence, long noteId, boolean relevant) {
         Log.d(MainActivity.LOG_TAG, "Adapter creating Sentence Block");
-        Log.d(MainActivity.LOG_TAG, "Category Name: " + category.name());
+//        Log.d(MainActivity.LOG_TAG, "Category Name: " + category.name());
         ContentValues values = new ContentValues();
         values.put(SB_COLUMN_SENTENCE, sentence);
-        values.put(SB_COLUMN_CATEGORY, category.name());
+//        values.put(SB_COLUMN_CATEGORY, category.name());
         values.put(SB_NOTE_ID, noteId);
         Log.d(MainActivity.LOG_TAG, "Adapter put values");
 
@@ -173,9 +184,8 @@ public class AbilinoteDbAdapter {
     }
 
     private SentenceBlock cursorToSentenceBlock(Cursor cursor) {
-        SentenceBlock newSentenceBlock = new SentenceBlock(cursor.getString(1)
-                ,SentenceBlock.Category.valueOf(cursor.getString(2))
-                ,cursor.getLong(3) ,cursor.getInt(0), cursor.getLong(4));
+        SentenceBlock newSentenceBlock = new SentenceBlock(cursor.getString(2), cursor.getLong(3),
+            cursor.getInt(1), cursor.getLong(0));
         return newSentenceBlock;
     }
 

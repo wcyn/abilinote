@@ -26,7 +26,7 @@ public class VoiceActivity extends Activity implements
     public static final String LOG_TAG = "VoiceActivity";
 
     Note.Category noteCat;
-    SentenceBlock.Category sentenceBlockCat;
+//    SentenceBlock.Category sentenceBlockCat;
     Note newNote;
 
     private String sentences;
@@ -56,7 +56,7 @@ public class VoiceActivity extends Activity implements
         title = (EditText) findViewById(R.id.voiceEditNoteTitle);
         toggleButton.setChecked(true);
         noteCat = Note.Category.PERSONAL;
-        sentenceBlockCat = SentenceBlock.Category.NOTHING;
+//        sentenceBlockCat = SentenceBlock.Category.NOTHING;
 
         // set up db adapter
         dbAdapter = new AbilinoteDbAdapter(VoiceActivity.this);
@@ -100,10 +100,9 @@ public class VoiceActivity extends Activity implements
 
     public void saveSentenceBlock(String sentence) {
         Log.d(LOG_TAG, "Creating Note");
+        Log.d(LOG_TAG, "Values: sentence, noteid: " + sentence + newNote.getId());
         // add sentence to the database
-        dbAdapter.createSentenceBlock(sentence, sentenceBlockCat, newNote.getId(), true);
-
-
+        dbAdapter.createSentenceBlock(sentence, newNote.getId(), true);
         ArrayList<SentenceBlock> sentenceBlocks = dbAdapter.getAllSentenceBlocks();
         lvVoiceResults.setAdapter(new ArrayAdapter<>
                 (this, android.R.layout.simple_list_item_1,
@@ -131,7 +130,7 @@ public class VoiceActivity extends Activity implements
         Log.d(LOG_TAG, "Voice onStop");
         if (speech != null) {
             speech.destroy();
-            dbAdapter.close();
+//            dbAdapter.close();
             Log.i(LOG_TAG, "destroy");
         }
     }
@@ -142,7 +141,7 @@ public class VoiceActivity extends Activity implements
         Log.d(LOG_TAG, "Voice onPause");
         if (speech != null) {
             speech.destroy();
-            dbAdapter.close();
+//            dbAdapter.close();
             Log.i(LOG_TAG, "Voice destroy");
         }
     }
@@ -256,6 +255,7 @@ public class VoiceActivity extends Activity implements
 //        for (String result : matches)
 //            text += result + "\n";
         text = matches.get(0);
+        Log.d(LOG_TAG, "Call save sentence block");
         saveSentenceBlock(text);
         listenToSpeech();
     }
