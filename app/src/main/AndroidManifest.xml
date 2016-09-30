@@ -21,7 +21,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".SplashActivity" />
-        <activity android:name=".SignActivity" />
+        <activity android:name=".SignInActivity" />
         <activity
             android:name=".VoiceActivity"
             android:label="@string/record_notes"

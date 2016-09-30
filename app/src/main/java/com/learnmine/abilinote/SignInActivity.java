@@ -4,7 +4,7 @@ package com.learnmine.abilinote;
 import android.app.Activity;
 import android.os.Bundle;
 
-public class SignActivity extends Activity {
+public class SignInActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

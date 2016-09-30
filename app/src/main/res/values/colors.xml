@@ -7,5 +7,7 @@
     <color name="green">#bada55</color>
     <color name="yellowish">#FFF999</color>
     <color name="offwhite">#fefefe</color>
+    <color name="indicator">#F79A1F</color>
+    <color name="dark_grey">#AAA</color>
     <!--<color name="my_red">#F00</color>-->
 </resources>

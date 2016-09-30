@@ -6,5 +6,9 @@
     android:orientation="vertical"
     android:id="@+id/note_container"
     tools:context="com.learnmine.abilinote.NoteDetailActivity">
-
+    <include
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar">
+    </include>
 </LinearLayout>
