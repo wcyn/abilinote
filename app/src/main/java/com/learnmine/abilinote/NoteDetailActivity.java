@@ -76,9 +76,9 @@ public class NoteDetailActivity extends Activity {
         Log.d(MainActivity.LOG_TAG, "View Switch");
         NoteViewFragment noteViewFragment = new NoteViewFragment();
         setTitle(R.string.view_note);
-        fragmentTransaction.add(R.id.note_container, noteViewFragment, "NOTE_VIEW_FRAGMENT");
-
-        fragmentTransaction.commit();
+//        fragmentTransaction.add(R.id.note_container, noteViewFragment, "NOTE_VIEW_FRAGMENT");
+//
+//        fragmentTransaction.commit();
 
     }
 

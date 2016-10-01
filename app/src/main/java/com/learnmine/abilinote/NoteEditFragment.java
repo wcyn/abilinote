@@ -22,7 +22,7 @@ public class NoteEditFragment extends Fragment {
     private ImageButton noteCatButton;
     private long noteId = 0;
     private NoteListActivity.FragmentToLaunch fragmentToLaunch;
-    Note.Category noteCat;
+//    Note.Category noteCat;
 
     public NoteEditFragment() {
         // Required empty public constructor
@@ -48,16 +48,16 @@ public class NoteEditFragment extends Fragment {
         fragmentToLaunch = (NoteListActivity.FragmentToLaunch)
                 intent.getSerializableExtra(NoteListActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA);
 
-        if (fragmentToLaunch != NoteListActivity.FragmentToLaunch.CREATE) {
-            Log.d(MainActivity.LOG_TAG, "Not CREATE");
-            noteCat = (Note.Category) intent.getSerializableExtra(
-                    NoteListActivity.NOTE_CATEGORY_EXTRA);
-            noteCatButton.setImageResource(Note.categoryToDrawable(noteCat));
-        } else {
-            noteCat = Note.Category.PERSONAL;
-            noteCatButton.setImageResource(Note.categoryToDrawable(noteCat));
-        }
-        noteId = intent.getExtras().getLong(NoteListActivity.NOTE_ID_EXTRA, 0);
+//        if (fragmentToLaunch != NoteListActivity.FragmentToLaunch.CREATE) {
+//            Log.d(MainActivity.LOG_TAG, "Not CREATE");
+//            noteCat = (Note.Category) intent.getSerializableExtra(
+//                    NoteListActivity.NOTE_CATEGORY_EXTRA);
+//            noteCatButton.setImageResource(Note.categoryToDrawable(noteCat));
+//        } else {
+//            noteCat = Note.Category.PERSONAL;
+//            noteCatButton.setImageResource(Note.categoryToDrawable(noteCat));
+//        }
+//        noteId = intent.getExtras().getLong(NoteListActivity.NOTE_ID_EXTRA, 0);
 
         // return our modified fragment layout
         return fragmentLayout;
@@ -65,17 +65,17 @@ public class NoteEditFragment extends Fragment {
 
     public void saveNote() {
 
-        AbilinoteDbAdapter dbAdapter = new AbilinoteDbAdapter(getActivity().getBaseContext());
-        dbAdapter.open();
-
-        if (fragmentToLaunch == NoteListActivity.FragmentToLaunch.CREATE) {
-            Log.d(MainActivity.LOG_TAG, "CReating MOde");
-            dbAdapter.createNote(title.getText() + "", message.getText() + "", noteCat);
-        } else {
-            // update instead of creating new
-            dbAdapter.updateNote(noteId, title.getText() + "", message.getText() + "", noteCat);
-        }
-        dbAdapter.close();
+//        AbilinoteDbAdapter dbAdapter = new AbilinoteDbAdapter(getActivity().getBaseContext());
+//        dbAdapter.open();
+//
+//        if (fragmentToLaunch == NoteListActivity.FragmentToLaunch.CREATE) {
+//            Log.d(MainActivity.LOG_TAG, "CReating MOde");
+//            dbAdapter.createNote(title.getText() + "", message.getText() + "", noteCat);
+//        } else {
+//            // update instead of creating new
+//            dbAdapter.updateNote(noteId, title.getText() + "", message.getText() + "", noteCat);
+//        }
+//        dbAdapter.close();
         Intent intent = new Intent(getActivity(), NoteListActivity.class);
         startActivity(intent);
     }

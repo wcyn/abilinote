@@ -22,12 +22,12 @@ import java.util.ArrayList;
 public class VoiceActivity extends Activity implements
         RecognitionListener {
 
-    private AbilinoteDbAdapter dbAdapter;
+//    private AbilinoteDbAdapter dbAdapter;
     public static final String LOG_TAG = "VoiceActivity";
 
-    Note.Category noteCat;
+//    Note.Category noteCat;
 //    SentenceBlock.Category sentenceBlockCat;
-    Note newNote;
+//    Note newNote;
 
     private String sentences;
     ListView lvVoiceResults;
@@ -55,14 +55,14 @@ public class VoiceActivity extends Activity implements
         toggleButton = (ToggleButton) findViewById(R.id.toggleBtnVoice);
         title = (EditText) findViewById(R.id.voiceEditNoteTitle);
         toggleButton.setChecked(true);
-        noteCat = Note.Category.PERSONAL;
+//        noteCat = Note.Category.PERSONAL;
 //        sentenceBlockCat = SentenceBlock.Category.NOTHING;
 
         // set up db adapter
-        dbAdapter = new AbilinoteDbAdapter(VoiceActivity.this);
-        dbAdapter.open();
-        newNote = dbAdapter.createNote("Edit Title", "", noteCat);
-        sentences = newNote.getMessage();
+//        dbAdapter = new AbilinoteDbAdapter(VoiceActivity.this);
+//        dbAdapter.open();
+//        newNote = dbAdapter.createNote("Edit Title", "", noteCat);
+//        sentences = newNote.getMessage();
 
         setUpSpeech();
 
@@ -100,19 +100,19 @@ public class VoiceActivity extends Activity implements
 
     public void saveSentenceBlock(String sentence) {
         Log.d(LOG_TAG, "Creating Note");
-        Log.d(LOG_TAG, "Values: sentence, noteid: " + sentence + newNote.getId());
+//        Log.d(LOG_TAG, "Values: sentence, noteid: " + sentence + newNote.getId());
         // add sentence to the database
-        dbAdapter.createSentenceBlock(sentence, newNote.getId(), true);
-        ArrayList<SentenceBlock> sentenceBlocks = dbAdapter.getAllSentenceBlocks();
-        lvVoiceResults.setAdapter(new ArrayAdapter<>
-                (this, android.R.layout.simple_list_item_1,
-                sentenceBlocks));
+//        dbAdapter.createSentenceBlock(sentence, newNote.getId(), true);
+//        ArrayList<SentenceBlock> sentenceBlocks = dbAdapter.getAllSentenceBlocks();
+//        lvVoiceResults.setAdapter(new ArrayAdapter<>
+//                (this, android.R.layout.simple_list_item_1,
+//                sentenceBlocks));
 
     }
 
     public void saveEntireNoteHandler(View view) {
-        dbAdapter.updateNote(newNote.getId(), title.getText() + "", sentences + "", noteCat);
-        dbAdapter.close();
+//        dbAdapter.updateNote(newNote.getId(), title.getText() + "", sentences + "", noteCat);
+//        dbAdapter.close();
     }
 
     @Override

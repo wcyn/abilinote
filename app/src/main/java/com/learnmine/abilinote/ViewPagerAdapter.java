@@ -31,7 +31,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public int getCount() {
         Log.d(MainActivity.LOG_TAG, "Getting count!");
-        return 2;           // As there are only 3 Tabs
+        return 2;           // As there are only 2 Tabs
     }
 
     @Override

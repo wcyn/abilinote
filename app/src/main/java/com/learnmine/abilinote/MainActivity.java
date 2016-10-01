@@ -1,21 +1,37 @@
 package com.learnmine.abilinote;
+import android.app.SearchManager;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.TabLayout.Tab;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.Layout;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 public class MainActivity extends AppCompatActivity {
     public static final String LOG_TAG = "MainActivity";
@@ -29,6 +45,14 @@ public class MainActivity extends AppCompatActivity {
     private String mPhotoUrl;
     private SharedPreferences mSharedPreferences;
     private GoogleApiClient mGoogleApiClient;
+
+    // Search bar
+    private MenuItem mSearchAction;
+    private boolean isSearchOpened = false;
+    private EditText edtSeach;
+
+    private View tabContentView;
+    private View searchInclude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,51 +69,15 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
 
-        /*
-        Creating Adapter and setting that adapter to the viewPager
-        setSupportActionBar method takes the toolbar and sets it as
-        the default action bar thus making the toolbar work like a normal
-        action bar.
-         */
+        tabContentView = findViewById(R.id.tabNContentLayout);
+        searchInclude = findViewById(R.id.searchInclude);
+
+
+        setSupportActionBar(mToolbar);
+
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(viewPagerAdapter);
         tabLayout.setupWithViewPager(viewPager);
-//        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-//        tabLayout.setOnTouchListener(new TabLayout());
-
-        /*
-        TabLayout.newTab() method creates a tab view, Now a Tab view is not the view
-        which is below the home_tab_cont, its the tab itself.
-         */
-
-//        final TabLayout.Tab home = tabLayout.newTab();
-//        final TabLayout.Tab my_notes = tabLayout.newTab();
-//        final TabLayout.Tab setting = tabLayout.newTab();
-
-
-        /*
-        Setting Title text for our home_tab_cont respectively
-         */
-
-//        home.setIcon(R.mipmap.ic_launcher);
-//        my_notes.setText("My Notes");
-
-        /*
-        Adding the tab view to our tablayout at appropriate positions
-        As I want home at first position I am passing home and 0 as argument to
-        the tablayout and like wise for other home_tab_cont as well
-         */
-//        tabLayout.setupWithViewPager(viewPager);
-//        tabLayout.addTab(home, 0);
-//        tabLayout.addTab(my_notes, 1);
-
-        /*
-        Adding a onPageChangeListener to the viewPager
-        1st we add the PageChangeListener and pass a TabLayoutPageChangeListener so that Tabs Selection
-        changes when a viewpager page changes.
-         */
-//        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-//        tabLayout.setupWithViewPager(viewPager);
 
         mUsername = ANONYMOUS;
 
@@ -108,15 +96,136 @@ public class MainActivity extends AppCompatActivity {
                 mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
             }
         }
+
+        new DrawerBuilder().withActivity(this).build();
+        //if you want to update the items at a later time it is recommended to keep it in a variable
+        PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(1).withName(R.string.sign_in);
+        SecondaryDrawerItem item2 = new SecondaryDrawerItem().withIdentifier(2).withName(R.string.settings);
+
+        //create the drawer and remember the `Drawer` result object
+        Drawer result = new DrawerBuilder()
+                .withActivity(this)
+                .withToolbar(mToolbar)
+                .addDrawerItems(
+                        item1,
+                        new DividerDrawerItem(),
+                        item2,
+                        new SecondaryDrawerItem().withName(R.string.settings)
+                )
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        // do something with the clicked item :D
+                        switch (position) {
+                            case 0: // sign in
+                                try
+                                {
+                                    Intent k = new Intent(MainActivity.this, SignInActivity.class);
+                                    startActivity(k);
+                                }catch(ActivityNotFoundException e){
+//                                    Intent k = new Intent(BugReportActivity.class);
+//                                    k.putExtra(BugReportActivity.STACKTRACE, stackTrace.toString());
+//                                    myContext.startActivity(k);
+                                    Toast.makeText(MainActivity.this, "Activity not Found",
+                                            Toast.LENGTH_SHORT).show();
+                                    Log.d(MainActivity.LOG_TAG, "Activity not found");
+                                }
+
+                        }
+                        return true;
+                    }
+                })
+                .build();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        Log.d(MainActivity.LOG_TAG, "Options created");
+
+        SearchManager searchManager = (SearchManager)
+                MainActivity.this.getSystemService(Context.SEARCH_SERVICE);
+
+        SearchView searchView = null;
+        if (searchItem != null) {
+            searchView = (SearchView) searchItem.getActionView();
+        }
+        if (searchView != null) {
+            searchView.setSearchableInfo(
+                    searchManager.getSearchableInfo(MainActivity.this.getComponentName()));
+            Log.d(MainActivity.LOG_TAG, "Search View Not Null");
+            searchView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.d(MainActivity.LOG_TAG, "Do nothing");
+                }
+            });
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    Log.d(MainActivity.LOG_TAG, "Search for Query");
+//                searchFor(query);
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String query) {
+
+                    Log.d(MainActivity.LOG_TAG, "Filter Search");
+//                filterSearchFor(query);
+                    return true;
+                }
+            });
+
+//            searchItem.expandActionView();
+            MenuItemCompat.setOnActionExpandListener(
+                    searchItem, new MenuItemCompat.OnActionExpandListener() {
+                        @Override
+                        public boolean onMenuItemActionExpand(MenuItem item) {
+                            tabContentView.setVisibility(View.INVISIBLE);
+                            searchInclude.setVisibility(View.VISIBLE);
+                            return true;
+                        }
+                        @Override
+                        public boolean onMenuItemActionCollapse(MenuItem item) {
+                            searchInclude.setVisibility(View.INVISIBLE);
+                            tabContentView.setVisibility(View.VISIBLE);
+//                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+//                            startActivity(intent);
+                            return true;
+                        }
+                    });
+
+        } else {
+            Log.d(MainActivity.LOG_TAG, "Search view is null");
+        }
+        return super.onCreateOptionsMenu(menu);
     }
 
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        int id = item.getItemId();
+//
+//        switch (id) {
+////            case R.id.action_settings:
+////                return true;
+//            case R.id.action_search:
+////                Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
+////                startActivity(intent);
+//                return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
+
+//    @Override
+//    public boolean onPrepareOptionsMenu(Menu menu) {
+//        mSearchAction = menu.findItem(R.id.action_search);
+//        return super.onPrepareOptionsMenu(menu);
+//    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {

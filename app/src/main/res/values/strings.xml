@@ -9,6 +9,8 @@
     <string name="_8">8*</string>
     <string name="_21">21*</string>
     <string name="home">Home</string>
+    <string name="settings">Settings</string>
+
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -26,4 +28,6 @@
     <string name="edit_note">Edit Note</string>
     <string name="nothing_here_yet">Nothing here yet</string>
     <string name="search">search</string>
+    <string name="sign_in">Sign In</string>
+    <string name="search_notes">Search Your Notes</string>
 </resources>

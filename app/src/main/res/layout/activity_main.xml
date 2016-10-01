@@ -8,27 +8,45 @@
     android:focusableInTouchMode="true"
     tools:context="com.learnmine.abilinote.MainActivity">
 
-    <!--<include-->
-        <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
-        <!--android:id="@+id/toolbar"-->
-        <!--layout="@layout/toolbar">-->
-    <!--</include>-->
+    <include
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar">
+    </include>
 
-
-    <android.support.design.widget.TabLayout
-        android:id="@+id/tabs"
-        style="@style/TabLayoutStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:layout_below="@+id/toolbar"
-        android:layout_alignParentStart="true"/>
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/viewpager"
+    <include
+        layout="@layout/fragment_search_results"
+        android:elevation="4dp"
+        android:id="@+id/searchInclude"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:layout_below="@+id/tabs"/>
+        android:layout_below="@id/toolbar"
+        android:visibility="invisible"
+        />
+
+    <RelativeLayout
+        android:id="@+id/tabNContentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
+        android:elevation="4dp"
+        >
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tabs"
+            style="@style/TabLayoutStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:elevation="4dp"
+            android:layout_alignParentStart="true"/>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_below="@+id/tabs"/>
+    </RelativeLayout>
 
     <!--<ImageView-->
         <!--android:id="@+id/imageView2"-->
