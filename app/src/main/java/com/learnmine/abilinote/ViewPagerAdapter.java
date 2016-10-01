@@ -18,9 +18,14 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
         Log.d(MainActivity.LOG_TAG, "Position: " + position);
-        return new TabFragment();    // Which Fragment should be dislpayed by the viewpager for the given position
-        // In my case we are showing up only one fragment in all the three home_tab_cont so we are
-        // not worrying about the position and just returning the TabFragment
+        switch (position) {
+            case 0:
+                return new HomeTabFragment();
+            case 1:
+                return new NotesTabFragment();
+
+        }
+        return new HomeTabFragment();
     }
 
     @Override
