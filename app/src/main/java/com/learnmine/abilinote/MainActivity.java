@@ -5,7 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.TabLayout.Tab;
 import android.support.v4.view.MenuItemCompat;
@@ -14,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.Layout;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,17 +28,33 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.appinvite.AppInvite;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.miguelcatalan.materialsearchview.MaterialSearchView;
+import com.mikepenz.ionicons_typeface_library.Ionicons;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
+import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
+import com.mikepenz.materialdrawer.util.DrawerImageLoader;
+import com.squareup.picasso.Picasso;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+
+public class MainActivity extends AppCompatActivity
+        implements GoogleApiClient.OnConnectionFailedListener {
     public static final String LOG_TAG = "MainActivity";
 
     public static final String MESSAGES_CHILD = "messages";
@@ -43,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String MESSAGE_SENT_EVENT = "message_sent";
     private String mUsername;
     private String mPhotoUrl;
+    private String mEmail;
     private SharedPreferences mSharedPreferences;
     private GoogleApiClient mGoogleApiClient;
 
@@ -53,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
     private View tabContentView;
     private View searchInclude;
+    private MaterialSearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,10 +92,6 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
 
-        tabContentView = findViewById(R.id.tabNContentLayout);
-        searchInclude = findViewById(R.id.searchInclude);
-
-
         setSupportActionBar(mToolbar);
 
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
@@ -80,9 +99,10 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
 
         mUsername = ANONYMOUS;
-
+        mPhotoUrl = "";
+        mEmail = "";
         // Initialize Firebase Auth
-        FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+        final FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
         if (mFirebaseUser == null) {
             // Not signed in, launch the Sign In activity
@@ -90,34 +110,84 @@ public class MainActivity extends AppCompatActivity {
 //            finish();
 //            return;
             // do nothing for now
+            //modify an item of the drawer
         } else {
             mUsername = mFirebaseUser.getDisplayName();
+            mEmail = mFirebaseUser.getEmail();
             if (mFirebaseUser.getPhotoUrl() != null) {
                 mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
             }
         }
 
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .addApi(Auth.GOOGLE_SIGN_IN_API)
+                .addApi(AppInvite.API)
+                .build();
+
         new DrawerBuilder().withActivity(this).build();
+
+        DrawerImageLoader.init(new AbstractDrawerImageLoader() {
+            @Override
+            public void set(ImageView imageView, Uri uri, Drawable placeholder) {
+                Picasso.with(imageView.getContext()).load(uri).placeholder(placeholder).into(imageView);
+            }
+
+            @Override
+            public void cancel(ImageView imageView) {
+                Picasso.with(imageView.getContext()).cancelRequest(imageView);
+            }
+
+            /*
+            @Override
+            public Drawable placeholder(Context ctx) {
+                return super.placeholder(ctx);
+            }
+
+            @Override
+            public Drawable placeholder(Context ctx, String tag) {
+                return super.placeholder(ctx, tag);
+            }
+            */
+        });
+
+        PrimaryDrawerItem sign_in = new PrimaryDrawerItem().withIdentifier(1).
+                withIcon(Ionicons.Icon.ion_log_in).withName(R.string.sign_in);
+        PrimaryDrawerItem log_out = new PrimaryDrawerItem().withIdentifier(2).
+                withIcon(Ionicons.Icon.ion_log_out).withName(R.string.log_out);
         //if you want to update the items at a later time it is recommended to keep it in a variable
-        PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(1).withName(R.string.sign_in);
-        SecondaryDrawerItem item2 = new SecondaryDrawerItem().withIdentifier(2).withName(R.string.settings);
+
+        AccountHeader headerResult = new AccountHeaderBuilder()
+                .withActivity(this)
+                .withHeaderBackground(R.drawable.header_orange)
+                .addProfiles(
+                        new ProfileDrawerItem().withName(mUsername).withEmail(mEmail)
+                                .withIcon(mPhotoUrl)
+                )
+                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
+                    @Override
+                    public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
+                        return false;
+                    }
+                })
+                .build();
 
         //create the drawer and remember the `Drawer` result object
         Drawer result = new DrawerBuilder()
                 .withActivity(this)
+                .withAccountHeader(headerResult)
                 .withToolbar(mToolbar)
+                .withSelectedItem(-1)
                 .addDrawerItems(
-                        item1,
-                        new DividerDrawerItem(),
-                        item2,
-                        new SecondaryDrawerItem().withName(R.string.settings)
+                        sign_in,
+                        log_out
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         // do something with the clicked item :D
                         switch (position) {
-                            case 0: // sign in
+                            case 1: // sign in
                                 try
                                 {
                                     Intent k = new Intent(MainActivity.this, SignInActivity.class);
@@ -126,17 +196,55 @@ public class MainActivity extends AppCompatActivity {
 //                                    Intent k = new Intent(BugReportActivity.class);
 //                                    k.putExtra(BugReportActivity.STACKTRACE, stackTrace.toString());
 //                                    myContext.startActivity(k);
-                                    Toast.makeText(MainActivity.this, "Activity not Found",
+                                    Toast.makeText(MainActivity.this, "An Error has Occurred.",
                                             Toast.LENGTH_SHORT).show();
                                     Log.d(MainActivity.LOG_TAG, "Activity not found");
                                 }
+                            case 2: // log out
+                                mFirebaseAuth.signOut();
+                                Toast.makeText(MainActivity.this, "Logged Out",
+                                        Toast.LENGTH_SHORT).show();
 
                         }
                         return true;
                     }
                 })
                 .build();
+
+        searchView = (MaterialSearchView) findViewById(R.id.search_view);
+        searchView.setSuggestions(getResources().getStringArray(R.array.query_suggestions));
+//        searchView.setVoiceSearch(true); //or false
+        searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                //Do some magic
+                Log.d(MainActivity.LOG_TAG, "Query text submit");
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                //Do some magic
+                Log.d(MainActivity.LOG_TAG, "Text Query Change");
+                return false;
+            }
+        });
+
+        searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
+            @Override
+            public void onSearchViewShown() {
+                Log.d(MainActivity.LOG_TAG, "Search View Shown");
+                //Do some magic
+            }
+
+            @Override
+            public void onSearchViewClosed() {
+                Log.d(MainActivity.LOG_TAG, "Search View closed");
+                //Do some magic
+            }
+        });
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -146,86 +254,10 @@ public class MainActivity extends AppCompatActivity {
         MenuItem searchItem = menu.findItem(R.id.action_search);
         Log.d(MainActivity.LOG_TAG, "Options created");
 
-        SearchManager searchManager = (SearchManager)
-                MainActivity.this.getSystemService(Context.SEARCH_SERVICE);
-
-        SearchView searchView = null;
-        if (searchItem != null) {
-            searchView = (SearchView) searchItem.getActionView();
-        }
-        if (searchView != null) {
-            searchView.setSearchableInfo(
-                    searchManager.getSearchableInfo(MainActivity.this.getComponentName()));
-            Log.d(MainActivity.LOG_TAG, "Search View Not Null");
-            searchView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Log.d(MainActivity.LOG_TAG, "Do nothing");
-                }
-            });
-            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                @Override
-                public boolean onQueryTextSubmit(String query) {
-                    Log.d(MainActivity.LOG_TAG, "Search for Query");
-//                searchFor(query);
-                    return true;
-                }
-
-                @Override
-                public boolean onQueryTextChange(String query) {
-
-                    Log.d(MainActivity.LOG_TAG, "Filter Search");
-//                filterSearchFor(query);
-                    return true;
-                }
-            });
-
-//            searchItem.expandActionView();
-            MenuItemCompat.setOnActionExpandListener(
-                    searchItem, new MenuItemCompat.OnActionExpandListener() {
-                        @Override
-                        public boolean onMenuItemActionExpand(MenuItem item) {
-                            tabContentView.setVisibility(View.INVISIBLE);
-                            searchInclude.setVisibility(View.VISIBLE);
-                            return true;
-                        }
-                        @Override
-                        public boolean onMenuItemActionCollapse(MenuItem item) {
-                            searchInclude.setVisibility(View.INVISIBLE);
-                            tabContentView.setVisibility(View.VISIBLE);
-//                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-//                            startActivity(intent);
-                            return true;
-                        }
-                    });
-
-        } else {
-            Log.d(MainActivity.LOG_TAG, "Search view is null");
-        }
+        searchView.setMenuItem(searchItem);
         return super.onCreateOptionsMenu(menu);
     }
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        int id = item.getItemId();
-//
-//        switch (id) {
-////            case R.id.action_settings:
-////                return true;
-//            case R.id.action_search:
-////                Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
-////                startActivity(intent);
-//                return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
-
-//    @Override
-//    public boolean onPrepareOptionsMenu(Menu menu) {
-//        mSearchAction = menu.findItem(R.id.action_search);
-//        return super.onPrepareOptionsMenu(menu);
-//    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -285,5 +317,12 @@ public class MainActivity extends AppCompatActivity {
                 NoteListActivity.FragmentToLaunch.CREATE);
         startActivity(intent);
 
+    }
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        // An unresolvable error has occurred and Google APIs (including Sign-In) will not
+        // be available.
+        Log.d(MainActivity.LOG_TAG, "onConnectionFailed:" + connectionResult);
+        Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
     }
 }

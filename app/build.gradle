@@ -22,12 +22,15 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    //    compile 'com.squareup.picasso:picasso:2.5.2'
 
     // Material Drawer
     compile('com.mikepenz:materialdrawer:5.6.0@aar') {
         transitive = true
     }
+
+    compile 'com.miguelcatalan:materialsearchview:1.4.0'
+    compile 'com.mikepenz:ionicons-typeface:+@aar'
+    compile 'com.squareup.picasso:picasso:2.5.2'
 
     // Google
     compile 'com.google.android.gms:play-services-auth:9.6.0'
