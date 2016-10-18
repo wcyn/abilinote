@@ -5,11 +5,29 @@
     android:layout_height="match_parent"
     tools:context="com.learnmine.abilinote.VoiceActivity">
 
-    <include
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar">
-    </include>
+        <android.support.v7.widget.Toolbar
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/toolbarVoice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+            android:background="@color/white">
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/titleScrollView"
+                android:layout_below="@+id/toolbarVoice"
+                android:layout_centerInParent="true">
+                <EditText
+                    android:hint="@string/edit_note_title"
+                    android:id="@+id/voiceEditNoteTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:minLines="2"
+                    android:inputType="text"/>
+            </ScrollView>
+        </android.support.v7.widget.Toolbar>
     <!--<Button-->
     <!--android:layout_width="120dp"-->
     <!--android:layout_height="120dp"-->
@@ -23,22 +41,22 @@
     <!--android:layout_centerHorizontal="true"-->
     <!--android:id="@+id/btnVoice"-->
     <!--android:onClick="recordVoiceHandler"/>-->
-    <ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/titleScrollView"
-        android:layout_alignParentTop="true"
-        android:layout_centerInParent="true">
-        <EditText
-            android:hint="@string/edit_note_title"
-            android:id="@+id/voiceEditNoteTitle"
-            android:labelFor="@+id/voiceEditNoteTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:minLines="2"
-            android:inputType="text"/>
-    </ScrollView>
+
+    <ToggleButton
+        android:layout_marginTop="10dp"
+        android:id="@+id/toggleBtnVoice"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:background="@drawable/circle_red"
+        android:drawableTop="@drawable/microphone"
+        android:padding="20dp"
+        android:text="@string/record_notes"
+        android:textColor="#fff"
+        android:textOff="@string/resume_recording"
+        android:textOn="@string/pause_recording"
+        android:layout_below="@+id/toolbarVoice"
+        android:layout_centerHorizontal="true" />
+
     <ProgressBar
         android:id="@+id/progressBarVoice"
         style="?android:attr/progressBarStyleHorizontal"
@@ -50,18 +68,33 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp" />
 
-    <ListView
-        android:id="@+id/lvRelevantNotes"
-        android:layout_below="@+id/progressBarVoice"
-        android:layout_width="match_parent"
+    <ProgressBar
+        android:id="@+id/roundProgressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/nothing_here_yet"/>
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"/>
 
-    <ListView
-        android:id="@+id/lvVoiceResults"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/sBlockRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/lvRelevantNotes"/>
+        android:layout_height="match_parent"
+        android:layout_below="@+id/progressBarVoice"
+        android:layout_marginBottom="20dp"/>
+
+    <!--<ListView-->
+        <!--android:id="@+id/lvRelevantNotes"-->
+        <!--android:layout_below="@+id/progressBarVoice"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="@string/nothing_here_yet"/>-->
+
+    <!--<ListView-->
+        <!--android:id="@+id/lvVoiceResults"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_below="@+id/lvRelevantNotes"/>-->
 
     <Button
         android:id="@+id/btnVoiceSave"
@@ -74,19 +107,6 @@
         android:layout_alignParentEnd="true"
         />
 
-    <ToggleButton
-        android:id="@+id/toggleBtnVoice"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:background="@drawable/circle_red"
-        android:drawableTop="@drawable/microphone"
-        android:padding="20dp"
-        android:text="@string/record_notes"
-        android:textColor="#fff"
-        android:textOff="@string/resume_recording"
-        android:textOn="@string/pause_recording"
-        android:layout_below="@+id/titleScrollView"
-        android:layout_centerHorizontal="true" />
     <!--<ImageButton-->
     <!--android:layout_width="wrap_content"-->
     <!--android:layout_height="wrap_content"-->

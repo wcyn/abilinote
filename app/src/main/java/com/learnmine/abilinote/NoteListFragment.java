@@ -1,38 +1,26 @@
 package com.learnmine.abilinote;
 
 
-import android.app.Fragment;
-import android.app.ListFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.ArrayList;
-
-import de.hdodenhof.circleimageview.CircleImageView;
+import static com.learnmine.abilinote.VoiceActivity.NOTES_CHILD;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -47,16 +35,6 @@ public class NoteListFragment extends Fragment {
     private static final String MESSAGE_SENT_EVENT = "message_sent";
     private SharedPreferences mSharedPreferences;
 
-    // Firebase instance variables
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseUser mFirebaseUser;
-    private DatabaseReference mFirebaseDatabaseReference;
-    private FirebaseRecyclerAdapter<NoteData, MessageViewHolder>
-            mFirebaseAdapter;
-    private FirebaseRemoteConfig mFirebaseRemoteConfig;
-    private FirebaseAnalytics mFirebaseAnalytics;
-
-
     // fragment RecyclerView things
     private RecyclerView mMessageRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
@@ -68,18 +46,22 @@ public class NoteListFragment extends Fragment {
     private static final int SPAN_COUNT = 2;
     private static final int DATASET_COUNT = 60;
 
+//    private ProgressBar roundNoteProgressBar;
+
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
         LINEAR_LAYOUT_MANAGER
     }
 
-    protected LayoutManagerType mCurrentLayoutManagerType;
-
-    protected RadioButton mLinearLayoutRadioButton;
-    protected RadioButton mGridLayoutRadioButton;
+//    protected LayoutManagerType mCurrentLayoutManagerType;
+//
+//    protected RadioButton mLinearLayoutRadioButton;
+//    protected RadioButton mGridLayoutRadioButton;
 
     protected RecyclerView mRecyclerView;
     protected CustomRecyclerAdapter mAdapter;
+    private RecyclerView noteRecyclerView;
+    private LinearLayoutManager noteLinearLayoutManager;
     protected RecyclerView.LayoutManager mLayoutManager;
     protected String[] mDataset;
 
@@ -88,13 +70,71 @@ public class NoteListFragment extends Fragment {
     protected RadioButton mLinearLayoutRadioButton;
     protected RadioButton mGridLayoutRadioButton;
 
+
+    // Firebase instance variables
+    private DatabaseReference mFirebaseDatabaseReference;
+    private FirebaseRecyclerAdapter<Note, MessageViewHolder>
+            mFirebaseAdapter;
+
+    public static class MessageViewHolder extends RecyclerView.ViewHolder {
+
+        public TextView noteTitleView;
+        //        public TextView messengerTextView;
+//        public CircleImageView messengerImageView;
+        public MessageViewHolder(View v) {
+            super(v);
+            noteTitleView = (TextView) itemView.findViewById(R.id.noteTitleView);
+//            messengerTextView = (TextView) itemView.findViewById(R.id.messengerTextView);
+//            messengerImageView = (CircleImageView) itemView.findViewById(R.id.messengerImageView);
+        }
+
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        roundNoteProgressBar = (ProgressBar) findViewById(R.id.roundNoteProgressBar);
 
+        //Firebase Reference
+        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+        mFirebaseAdapter = new FirebaseRecyclerAdapter<Note,
+                MessageViewHolder>(
+                Note.class,
+                R.layout.note_list_item,
+                MessageViewHolder.class,
+                mFirebaseDatabaseReference.child(NOTES_CHILD)) {
+
+            @Override
+            protected void populateViewHolder(MessageViewHolder viewHolder,
+                                              Note note, int position) {
+//                roundProgressBar.setVisibility(ProgressBar.INVISIBLE);
+                viewHolder.noteTitleView.setText(note.getTitle());
+            }
+        };
+
+        mFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                int sentenceBlockCount = mFirebaseAdapter.getItemCount();
+                int lastVisiblePosition =
+                        noteLinearLayoutManager.findLastCompletelyVisibleItemPosition();
+                // If the recycler view is initially being loaded or the
+                // user is at the bottom of the list, scroll to the bottom
+                // of the list to show the newly added message.
+                if (lastVisiblePosition == -1 ||
+                        (positionStart >= (sentenceBlockCount - 1) &&
+                                lastVisiblePosition == (positionStart - 1))) {
+                    noteRecyclerView.scrollToPosition(positionStart);
+                }
+            }
+        });
+
+        noteRecyclerView.setLayoutManager(noteLinearLayoutManager);
+        noteRecyclerView.setAdapter(mFirebaseAdapter);
         // Initialize dataset, this data would usually come from a local content provider or
         // remote server.
-        initDataset();
+//        initDataset();
     }
 
     @Override
@@ -103,7 +143,7 @@ public class NoteListFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.recycler_view_frag, container, false);
         rootView.setTag(TAG);
 
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView);
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.noteRecyclerView);
 
         // LinearLayoutManager is used here, this will layout the elements in a similar fashion
         // to the way ListView would layout elements. The RecyclerView.LayoutManager defines how
@@ -119,7 +159,7 @@ public class NoteListFragment extends Fragment {
         }
         setRecyclerViewLayoutManager(mCurrentLayoutManagerType);
 
-        mAdapter = new CustomAdapter(mDataset);
+        mAdapter = new CustomRecyclerAdapter(mDataset);
         // Set CustomAdapter as the adapter for RecyclerView.
         mRecyclerView.setAdapter(mAdapter);
 
@@ -186,6 +226,7 @@ public class NoteListFragment extends Fragment {
      * from a local content provider or remote server.
      */
     private void initDataset() {
+
         mDataset = new String[DATASET_COUNT];
         for (int i = 0; i < DATASET_COUNT; i++) {
             mDataset[i] = "This is element #" + i;
@@ -232,19 +273,19 @@ public class NoteListFragment extends Fragment {
 //        launchNoDetailActivity(NoteListActivity.FragmentToLaunch.VIEW,position);
 //    }
 
-    public static class MessageViewHolder extends RecyclerView.ViewHolder {
-
-        public TextView messageTextView;
-        public TextView messengerTextView;
-        public CircleImageView messengerImageView;
-        public MessageViewHolder(View v) {
-            super(v);
-            messageTextView = (TextView) itemView.findViewById(R.id.messageTextView);
-            messengerTextView = (TextView) itemView.findViewById(R.id.messengerTextView);
-            messengerImageView = (CircleImageView) itemView.findViewById(R.id.messengerImageView);
-        }
-
-    }
+//    public static class MessageViewHolder extends RecyclerView.ViewHolder {
+//
+//        public TextView noteTitleView;
+//        public TextView messengerTextView;
+//        public CircleImageView messengerImageView;
+//        public MessageViewHolder(View v) {
+//            super(v);
+//            noteTitleView = (TextView) itemView.findViewById(R.id.noteTitleView);
+//            messengerTextView = (TextView) itemView.findViewById(R.id.messengerTextView);
+//            messengerImageView = (CircleImageView) itemView.findViewById(R.id.messengerImageView);
+//        }
+//
+//    }
 
     private void launchNoDetailActivity(NoteListActivity.FragmentToLaunch ftl, int position) {
 

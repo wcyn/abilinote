@@ -7,34 +7,54 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.ArrayList;
+
 
 public class VoiceActivity extends Activity implements
         RecognitionListener {
+    public static class MessageViewHolder extends RecyclerView.ViewHolder {
 
-//    private AbilinoteDbAdapter dbAdapter;
+        public TextView messageTextView;
+        public MessageViewHolder(View v) {
+            super(v);
+            messageTextView = (TextView) itemView.findViewById(R.id.sentenceBlockTextView);
+        }
+    }
+
     public static final String LOG_TAG = "VoiceActivity";
-
-//    Note.Category noteCat;
-//    SentenceBlock.Category sentenceBlockCat;
-//    Note newNote;
+    public static final String S_BLOCKS_CHILD = MainActivity.S_BLOCKS_CHILD;
+    public static final String NOTES_CHILD = MainActivity.NOTES_CHILD;
 
     private String sentences;
+    private String newNoteId = "hi";
     ListView lvVoiceResults;
     ListView lvRelevantNotes;
-    private EditText title;
+    private EditText noteTitle;
+
     private static ToggleButton toggleButton;
     private static ProgressBar progressBar;
+    private ProgressBar roundProgressBar;
+    private RecyclerView sentenceBlockRecyclerView;
+    private LinearLayoutManager sBlockLinearLayoutManager;
+
     private static SpeechRecognizer speech = null;
     private static Intent recognizerIntent;
     static final int check = 1111;
@@ -43,18 +63,95 @@ public class VoiceActivity extends Activity implements
     };
     TextToSpeech tts;
 
+    // Firebase
+    private DatabaseReference mFirebaseDatabaseReference;
+    private FirebaseRecyclerAdapter<SentenceBlock, MessageViewHolder>
+            mFirebaseAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(LOG_TAG, "Voice Created");
         setContentView(R.layout.activity_voice);
 
-        lvVoiceResults = (ListView) findViewById(R.id.lvVoiceResults);
-        lvRelevantNotes = (ListView) findViewById(R.id.lvRelevantNotes);
+//        lvVoiceResults = (ListView) findViewById(R.id.lvVoiceResults);
+//        lvRelevantNotes = (ListView) findViewById(R.id.lvRelevantNotes);
         progressBar = (ProgressBar) findViewById(R.id.progressBarVoice);
+        roundProgressBar = (ProgressBar) findViewById(R.id.roundProgressBar);
+
+
+        sentenceBlockRecyclerView = (RecyclerView) findViewById(R.id.sBlockRecyclerView);
+        sBlockLinearLayoutManager = new LinearLayoutManager(this);
+        sBlockLinearLayoutManager.setStackFromEnd(false);
+        sentenceBlockRecyclerView.setLayoutManager(sBlockLinearLayoutManager);
+
         toggleButton = (ToggleButton) findViewById(R.id.toggleBtnVoice);
-        title = (EditText) findViewById(R.id.voiceEditNoteTitle);
+        noteTitle = (EditText) findViewById(R.id.voiceEditNoteTitle);
         toggleButton.setChecked(true);
+
+
+
+        //Firebase Reference
+        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+
+        // Create a new Note
+        newNoteId = mFirebaseDatabaseReference.child(NOTES_CHILD)
+                .push().getKey();
+        mFirebaseDatabaseReference.child(NOTES_CHILD).child(newNoteId).child("title")
+                .setValue(noteTitle.getText().toString());
+
+        Log.d(MainActivity.LOG_TAG, "newNoteId: " + newNoteId);
+
+        noteTitle.addTextChangedListener(new TextWatcher() {
+
+            public void afterTextChanged(Editable s) {
+                mFirebaseDatabaseReference.child(NOTES_CHILD).child(newNoteId).child("title")
+                        .setValue(noteTitle.getText().toString());
+            }
+
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        });
+
+        mFirebaseAdapter = new FirebaseRecyclerAdapter<SentenceBlock,
+                MessageViewHolder>(
+                SentenceBlock.class,
+                R.layout.sentence_block,
+                MessageViewHolder.class,
+                mFirebaseDatabaseReference.child(S_BLOCKS_CHILD + "/" + newNoteId)) {
+
+            @Override
+            protected void populateViewHolder(MessageViewHolder viewHolder,
+                                              SentenceBlock sentenceBlock, int position) {
+                roundProgressBar.setVisibility(ProgressBar.INVISIBLE);
+                viewHolder.messageTextView.setText(sentenceBlock.getText());
+            }
+        };
+
+        mFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                int sentenceBlockCount = mFirebaseAdapter.getItemCount();
+                int lastVisiblePosition =
+                        sBlockLinearLayoutManager.findLastCompletelyVisibleItemPosition();
+                // If the recycler view is initially being loaded or the
+                // user is at the bottom of the list, scroll to the bottom
+                // of the list to show the newly added message.
+                if (lastVisiblePosition == -1 ||
+                        (positionStart >= (sentenceBlockCount - 1) &&
+                                lastVisiblePosition == (positionStart - 1))) {
+                    sentenceBlockRecyclerView.scrollToPosition(positionStart);
+                }
+            }
+        });
+
+        sentenceBlockRecyclerView.setLayoutManager(sBlockLinearLayoutManager);
+        sentenceBlockRecyclerView.setAdapter(mFirebaseAdapter);
+
+        // End Firebase Stuff
+
 //        noteCat = Note.Category.PERSONAL;
 //        sentenceBlockCat = SentenceBlock.Category.NOTHING;
 
@@ -100,6 +197,10 @@ public class VoiceActivity extends Activity implements
 
     public void saveSentenceBlock(String sentence) {
         Log.d(LOG_TAG, "Creating Note");
+        SentenceBlock sentenceBlock = new
+                SentenceBlock(sentence);
+        mFirebaseDatabaseReference.child(S_BLOCKS_CHILD + "/" + newNoteId)
+                .push().setValue(sentenceBlock);
 //        Log.d(LOG_TAG, "Values: sentence, noteid: " + sentence + newNote.getId());
         // add sentence to the database
 //        dbAdapter.createSentenceBlock(sentence, newNote.getId(), true);
@@ -194,8 +295,8 @@ public class VoiceActivity extends Activity implements
                 Log.d(LOG_TAG, "Voice Result Okay");
                 ArrayList<String> results = data.getStringArrayListExtra(
                         RecognizerIntent.EXTRA_RESULTS);
-                lvVoiceResults.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
-                        results));
+//                lvVoiceResults.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
+//                        results));
             }
         }
     }
@@ -249,8 +350,8 @@ public class VoiceActivity extends Activity implements
         Log.i(LOG_TAG, "onResults");
         ArrayList<String> matches = results
                 .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-        lvVoiceResults.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
-                matches));
+//        lvVoiceResults.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
+//                matches));
         String text;
 //        for (String result : matches)
 //            text += result + "\n";

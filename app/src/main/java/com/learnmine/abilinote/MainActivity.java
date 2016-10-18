@@ -29,12 +29,14 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.appinvite.AppInvite;
+import com.google.android.gms.appinvite.AppInviteInvitation;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.mikepenz.ionicons_typeface_library.Ionicons;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -56,12 +58,12 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity
         implements GoogleApiClient.OnConnectionFailedListener {
     public static final String LOG_TAG = "MainActivity";
-
-    public static final String MESSAGES_CHILD = "messages";
     private static final int REQUEST_INVITE = 1;
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 10;
     public static final String ANONYMOUS = "anonymous";
     private static final String MESSAGE_SENT_EVENT = "message_sent";
+    public static final String S_BLOCKS_CHILD = "sentence_blocks";
+    public static final String NOTES_CHILD = "notes";
     private String mUsername;
     private String mPhotoUrl;
     private String mEmail;
@@ -76,6 +78,9 @@ public class MainActivity extends AppCompatActivity
     private View tabContentView;
     private View searchInclude;
     private MaterialSearchView searchView;
+
+    private FirebaseRemoteConfig mFirebaseRemoteConfig;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +107,7 @@ public class MainActivity extends AppCompatActivity
         mPhotoUrl = "";
         mEmail = "";
         // Initialize Firebase Auth
+
         final FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
         if (mFirebaseUser == null) {
@@ -124,6 +130,11 @@ public class MainActivity extends AppCompatActivity
                 .addApi(Auth.GOOGLE_SIGN_IN_API)
                 .addApi(AppInvite.API)
                 .build();
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
+        // End Firebase Stuff
+
 
         new DrawerBuilder().withActivity(this).build();
 
@@ -318,6 +329,35 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
 
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(LOG_TAG, "onActivityResult: requestCode=" + requestCode +
+                ", resultCode=" + resultCode);
+
+        if (requestCode == REQUEST_INVITE) {
+            if (resultCode == RESULT_OK) {
+                Bundle payload = new Bundle();
+                payload.putString(FirebaseAnalytics.Param.VALUE, "sent");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE,
+                        payload);
+                // Check how many invitations were sent and log.
+                String[] ids = AppInviteInvitation.getInvitationIds(resultCode,
+                        data);
+                Log.d(LOG_TAG, "Invitations sent: " + ids.length);
+            } else {
+                Bundle payload = new Bundle();
+                payload.putString(FirebaseAnalytics.Param.VALUE, "not sent");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE,
+                        payload);
+                // Sending failed or it was canceled, show failure message to
+                // the user
+                Log.d(LOG_TAG, "Failed to send invitation.");
+            }
+        }
+    }
+
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         // An unresolvable error has occurred and Google APIs (including Sign-In) will not

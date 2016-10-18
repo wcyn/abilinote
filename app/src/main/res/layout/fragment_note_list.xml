@@ -7,17 +7,11 @@
     tools:context=".NoteListActivity"
     tools:showIn="@layout/activity_note_list">
 
-    <fragment
-        android:id="@+id/NoteListFrag"
-        android:name="com.learnmine.abilinote.NoteListFragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <android.support.v7.widget.RecyclerView
-        android:id="@+id/messageRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/linearLayout"/>
+        <!--<android.support.v7.widget.RecyclerView-->
+        <!--android:id="@+id/messageRecyclerView"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_above="@+id/linearLayout"/>-->
 
         <LinearLayout
             android:id="@+id/linearLayout"
@@ -46,13 +40,11 @@
         </LinearLayout>
 
         <ProgressBar
-            android:id="@+id/progressBar"
+            android:id="@+id/roundNoteProgressBar"
             style="?android:attr/progressBarStyleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"/>
-
-    </fragment>
 </LinearLayout>
 
