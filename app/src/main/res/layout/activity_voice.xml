@@ -19,12 +19,16 @@
                 android:layout_below="@+id/toolbarVoice"
                 android:layout_centerInParent="true">
                 <EditText
+                    android:background="@android:color/transparent"
                     android:hint="@string/edit_note_title"
                     android:id="@+id/voiceEditNoteTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:minLines="2"
+                    android:nextFocusUp="@+id/voiceEditNoteTitle"
+                    android:nextFocusLeft="@+id/voiceEditNoteTitle"
+                    android:text="@string/untitled_note"
                     android:inputType="text"/>
             </ScrollView>
         </android.support.v7.widget.Toolbar>

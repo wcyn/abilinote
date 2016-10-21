@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
@@ -81,6 +82,52 @@ public class MainActivity extends AppCompatActivity
 
     private FirebaseRemoteConfig mFirebaseRemoteConfig;
     private FirebaseAnalytics mFirebaseAnalytics;
+    final FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+
+    private class FirebaseAuthenticateTask extends AsyncTask<String, Void, FirebaseAuth> {
+
+        protected FirebaseAuth doInBackground(String... params) {
+
+            // Initialize Firebase Auth
+
+            FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
+            if (mFirebaseUser == null) {
+                // Not signed in, launch the Sign In activity
+//            startActivity(new Intent(this, SignInActivity.class));
+//            finish();
+//            return;
+                // do nothing for now
+                //modify an item of the drawer
+            } else {
+                mUsername = mFirebaseUser.getDisplayName();
+                mEmail = mFirebaseUser.getEmail();
+                if (mFirebaseUser.getPhotoUrl() != null) {
+                    mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
+                }
+            }
+
+            mGoogleApiClient = new GoogleApiClient.Builder(MainActivity.this)
+                    .enableAutoManage(MainActivity.this /* FragmentActivity */, MainActivity.this /* OnConnectionFailedListener */)
+                    .addApi(Auth.GOOGLE_SIGN_IN_API)
+                    .addApi(AppInvite.API)
+                    .build();
+
+            mFirebaseAnalytics = FirebaseAnalytics.getInstance(MainActivity.this);
+            FirebaseAuth result = mFirebaseAuth;
+            return result;
+            // End Firebase Stuff
+        }
+
+//        protected void onProgressUpdate(Integer... progress) {
+//            setProgressPercent(progress[0]);
+//        }
+
+        protected void onPostExecute(String result) {
+            Toast.makeText(getApplicationContext(),"Welcome Back " + result.toString(),Toast.LENGTH_SHORT);
+        }
+    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,35 +153,8 @@ public class MainActivity extends AppCompatActivity
         mUsername = ANONYMOUS;
         mPhotoUrl = "";
         mEmail = "";
-        // Initialize Firebase Auth
 
-        final FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
-        if (mFirebaseUser == null) {
-            // Not signed in, launch the Sign In activity
-//            startActivity(new Intent(this, SignInActivity.class));
-//            finish();
-//            return;
-            // do nothing for now
-            //modify an item of the drawer
-        } else {
-            mUsername = mFirebaseUser.getDisplayName();
-            mEmail = mFirebaseUser.getEmail();
-            if (mFirebaseUser.getPhotoUrl() != null) {
-                mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
-            }
-        }
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-                .addApi(Auth.GOOGLE_SIGN_IN_API)
-                .addApi(AppInvite.API)
-                .build();
-
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-
-        // End Firebase Stuff
-
+        new FirebaseAuthenticateTask().execute();
 
         new DrawerBuilder().withActivity(this).build();
 
@@ -255,6 +275,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
+
 
 
     @Override

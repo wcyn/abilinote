@@ -14,11 +14,14 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
-import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import it.gmariotti.cardslib.library.internal.Card;
+import it.gmariotti.cardslib.library.internal.CardHeader;
+import it.gmariotti.cardslib.library.view.CardViewNative;
 
 import static com.learnmine.abilinote.VoiceActivity.NOTES_CHILD;
 
@@ -78,12 +81,14 @@ public class NoteListFragment extends Fragment {
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView noteTitleView;
+        public  CardViewNative cardViewNative;
+//        public TextView noteTitleView;
         //        public TextView messengerTextView;
 //        public CircleImageView messengerImageView;
         public MessageViewHolder(View v) {
             super(v);
-            noteTitleView = (TextView) itemView.findViewById(R.id.noteTitleView);
+            cardViewNative = (CardViewNative) itemView.findViewById(R.id.noteCardView);
+//            noteTitleView = (TextView) itemView.findViewById(R.id.noteTitleListItem);
 //            messengerTextView = (TextView) itemView.findViewById(R.id.messengerTextView);
 //            messengerImageView = (CircleImageView) itemView.findViewById(R.id.messengerImageView);
         }
@@ -108,7 +113,21 @@ public class NoteListFragment extends Fragment {
             protected void populateViewHolder(MessageViewHolder viewHolder,
                                               Note note, int position) {
 //                roundProgressBar.setVisibility(ProgressBar.INVISIBLE);
-                viewHolder.noteTitleView.setText(note.getTitle());
+                Card card = new Card(getContext(), R.layout.note_card_inner_content);
+
+                card.setId(String.valueOf(position));
+
+                //Create a CardHeader
+                CardHeader header = new CardHeader(getContext());
+
+                //Add Header to card
+                card.addCardHeader(header);
+
+                //Set the card inner text
+                card.setTitle(note.getTitle());
+
+                viewHolder.cardViewNative.setCard(card);
+//                viewHolder.noteTitleView.setText(note.getTitle());
             }
         };
 

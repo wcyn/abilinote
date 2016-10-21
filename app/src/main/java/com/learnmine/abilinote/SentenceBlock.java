@@ -6,7 +6,6 @@ package com.learnmine.abilinote;
 
 public class SentenceBlock {
     private String text;
-    private String note;
 
     public SentenceBlock() {
     }
@@ -21,14 +20,6 @@ public class SentenceBlock {
 
     public void setText(String text) {
         this.text = text;
-    }
-
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
     }
 
 }

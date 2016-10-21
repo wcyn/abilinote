@@ -2,11 +2,13 @@ package com.learnmine.abilinote;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -22,8 +24,11 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -105,6 +110,11 @@ public class VoiceActivity extends Activity implements
         noteTitle.addTextChangedListener(new TextWatcher() {
 
             public void afterTextChanged(Editable s) {
+                if (s.length() < 1) {
+                    noteTitle.setText(R.string.untitled_note);
+                    noteTitle.setTextColor(ContextCompat.getColor(getBaseContext(), R.color.dark_grey));
+                    noteTitle.setTypeface(null, Typeface.ITALIC);
+                }
                 mFirebaseDatabaseReference.child(NOTES_CHILD).child(newNoteId).child("title")
                         .setValue(noteTitle.getText().toString());
             }
@@ -152,28 +162,7 @@ public class VoiceActivity extends Activity implements
 
         // End Firebase Stuff
 
-//        noteCat = Note.Category.PERSONAL;
-//        sentenceBlockCat = SentenceBlock.Category.NOTHING;
-
-        // set up db adapter
-//        dbAdapter = new AbilinoteDbAdapter(VoiceActivity.this);
-//        dbAdapter.open();
-//        newNote = dbAdapter.createNote("Edit Title", "", noteCat);
-//        sentences = newNote.getMessage();
-
         setUpSpeech();
-
-        //generate list
-//        ArrayList<String> list = new ArrayList<String>();
-//        list.add("item1");
-//        list.add("item2");
-
-        //instantiate custom adapter
-//        CustomArrayAdapter adapter = new CustomArrayAdapter(list, this);
-
-        //handle listview and assign adapter
-//        ListView lView = (ListView)findViewById(R.id.lvVoiceReturn);
-//        lView.setAdapter(adapter);
 
         // start recording immediately activity is created
         listenToSpeech();
@@ -201,13 +190,6 @@ public class VoiceActivity extends Activity implements
                 SentenceBlock(sentence);
         mFirebaseDatabaseReference.child(S_BLOCKS_CHILD + "/" + newNoteId)
                 .push().setValue(sentenceBlock);
-//        Log.d(LOG_TAG, "Values: sentence, noteid: " + sentence + newNote.getId());
-        // add sentence to the database
-//        dbAdapter.createSentenceBlock(sentence, newNote.getId(), true);
-//        ArrayList<SentenceBlock> sentenceBlocks = dbAdapter.getAllSentenceBlocks();
-//        lvVoiceResults.setAdapter(new ArrayAdapter<>
-//                (this, android.R.layout.simple_list_item_1,
-//                sentenceBlocks));
 
     }
 
@@ -239,6 +221,10 @@ public class VoiceActivity extends Activity implements
     @Override
     protected void onPause() {
         super.onPause();
+
+//        Note note = new Note();
+//        note.setFirstSentence();
+//        mFirebaseDatabaseReference.child(NOTES_CHILD + "/" + newNoteId).setValue(sentenceBlock);
         Log.d(LOG_TAG, "Voice onPause");
         if (speech != null) {
             speech.destroy();

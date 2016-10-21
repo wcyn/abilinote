@@ -31,7 +31,7 @@
     <string name="type_notes">Type Notes</string>
     <string name="resume_recording">Resume Recording</string>
     <string name="note_title">Note Title</string>
-    <string name="sample_text">Sample Note Text</string>
+    <string name="sample_text">Sample Note Text. Some quite Lengthy sample text. And some more sample text</string>
     <string name="view_note">View Note</string>
     <string name="edit_note_title">Edit Note Title</string>
     <string name="new_text">New Text</string>
@@ -42,4 +42,9 @@
     <string name="sign_in">Sign In</string>
     <string name="search_notes">Search Your Notes</string>
     <string name="log_out">Log out</string>
+    <string name="note">Note</string>
+    <string name="note_card_default">No Title</string>
+    <string name="note_message_default">Empty Note</string>
+    <string name="untitled_note">Untitled Note</string>
+    <string name="empty_note">(Empty Note)</string>
 </resources>
